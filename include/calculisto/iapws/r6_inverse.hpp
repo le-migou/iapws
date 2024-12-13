@@ -10,25 +10,21 @@ calculisto::iapws::r6_inverse
     inline namespace
 r6_95_2016
 {
-    namespace
-detail
-{
-        constexpr auto
-    initial_density (
-          auto const& pressure
-        , auto const& temperature
-    ){
-        return (
-               pressure > 100e6 
-            || (
-                   temperature > 1073.15 
-                && pressure > 50e6
-            ))
-        ? 1000.
-        : r7::density_pt (pressure, temperature)
-    ;
-    }
-} // namespace detail
+    constexpr auto
+initial_density (
+        auto const& pressure
+    , auto const& temperature
+){
+    return (
+            pressure > 100e6 
+        || (
+                temperature > 1073.15 
+            && pressure > 50e6
+        ))
+    ? 1000.
+    : r7::density_pt (pressure, temperature)
+;
+}
 
     template <info_tag_t InfoTag = info::tag::none>
     constexpr auto
@@ -71,14 +67,14 @@ density_pt (
     , auto const& temperature
     , info_t <InfoTag> info
 ){
-    return density_pt (pressure, temperature, detail::initial_density (pressure, temperature), info);
+    return density_pt (pressure, temperature, initial_density (pressure, temperature), info);
 }
     constexpr auto
 density_pt (
       auto const& pressure
     , auto const& temperature
 ){
-    return density_pt (pressure, temperature, detail::initial_density (pressure, temperature), info::none);
+    return density_pt (pressure, temperature, initial_density (pressure, temperature), info::none);
 }
     template <info_tag_t InfoTag = info::tag::none>
     constexpr auto
@@ -107,96 +103,96 @@ density_tp (
     return density_pt (pressure, temperature, info::none);
 }
 
-#define ISTO_IAPWS_R6_INVERSE_GEN(NAME)                                                \
-    template <info_tag_t InfoTag = info::tag::none>                                    \
-    constexpr auto                                                                     \
-NAME##_pt (                                                                            \
-      auto const& pressure                                                             \
-    , auto const& temperature                                                          \
-    , auto const& density_initial_guess                                                \
-    , info_t <InfoTag> info = info::none                                               \
-){                                                                                     \
-        const auto                                                                     \
-    d = density_pt (pressure, temperature, density_initial_guess, info);               \
-    if constexpr (InfoTag != info::tag::none)                                          \
-    {                                                                                  \
-        return std::pair { r6::NAME##_dt (d.first, temperature), d.second };           \
-    }                                                                                  \
-    else                                                                               \
-    {                                                                                  \
-        return r6::NAME##_dt (d, temperature);                                         \
-    }                                                                                  \
-}                                                                                      \
-                                                                                       \
-    template <info_tag_t InfoTag>                                                      \
-    constexpr auto                                                                     \
-NAME##_pt (                                                                            \
-      auto const& pressure                                                             \
-    , auto const& temperature                                                          \
-    , info_t <InfoTag> info                                                            \
-){                                                                                     \
-    return NAME##_pt (                                                                 \
-          pressure                                                                     \
-        , temperature                                                                  \
-        , detail::initial_density (pressure, temperature)                              \
-        , info                                                                         \
-    );                                                                                 \
-}                                                                                      \
-                                                                                       \
-    constexpr auto                                                                     \
-NAME##_pt (                                                                            \
-      auto const& pressure                                                             \
-    , auto const& temperature                                                          \
-){                                                                                     \
-    return NAME##_pt (                                                                 \
-          pressure                                                                     \
-        , temperature                                                                  \
-        , detail::initial_density (pressure, temperature)                              \
-        , info::none                                                                   \
-    );                                                                                 \
-}                                                                                      \
-                                                                                       \
-    template <info_tag_t InfoTag = info::tag::none>                                    \
-    constexpr auto                                                                     \
-NAME##_tp (                                                                            \
-      auto const& temperature                                                          \
-    , auto const& pressure                                                             \
-    , auto const& density_initial_guess                                                \
-    , info_t <InfoTag> info = info::none                                               \
-){                                                                                     \
-    return NAME##_pt (                                                                 \
-          pressure                                                                     \
-        , temperature                                                                  \
-        , density_initial_guess                                                        \
-        , info                                                                         \
-    );                                                                                 \
-}                                                                                      \
-                                                                                       \
-    template <info_tag_t InfoTag>                                                      \
-    constexpr auto                                                                     \
-NAME##_tp (                                                                            \
-      auto const& temperature                                                          \
-    , auto const& pressure                                                             \
-    , info_t <InfoTag> info                                                            \
-){                                                                                     \
-    return NAME##_pt (                                                                 \
-          pressure                                                                     \
-        , temperature                                                                  \
-        , info                                                                         \
-    );                                                                                 \
-}                                                                                      \
-                                                                                       \
-    constexpr auto                                                                     \
-NAME##_tp (                                                                            \
-      auto const& temperature                                                          \
-    , auto const& pressure                                                             \
-){                                                                                     \
-    return NAME##_pt (                                                                 \
-          pressure                                                                     \
-        , temperature                                                                  \
-        , info::none                                                                   \
-    );                                                                                 \
-}
+#define ISTO_IAPWS_R6_INVERSE_GEN(NAME)                                      \
+    template <info_tag_t InfoTag = info::tag::none>                          \
+    constexpr auto                                                           \
+NAME##_pt (                                                                  \
+      auto const& pressure                                                   \
+    , auto const& temperature                                                \
+    , auto const& density_initial_guess                                      \
+    , info_t <InfoTag> info = info::none                                     \
+){                                                                           \
+        const auto                                                           \
+    d = density_pt (pressure, temperature, density_initial_guess, info);     \
+    if constexpr (InfoTag != info::tag::none)                                \
+    {                                                                        \
+        return std::pair { r6::NAME##_dt (d.first, temperature), d.second }; \
+    }                                                                        \
+    else                                                                     \
+    {                                                                        \
+        return r6::NAME##_dt (d, temperature);                               \
+    }                                                                        \
+}                                                                            \
+                                                                             \
+    template <info_tag_t InfoTag>                                            \
+    constexpr auto                                                           \
+NAME##_pt (                                                                  \
+      auto const& pressure                                                   \
+    , auto const& temperature                                                \
+    , info_t <InfoTag> info                                                  \
+){                                                                           \
+    return NAME##_pt (                                                       \
+          pressure                                                           \
+        , temperature                                                        \
+        , initial_density (pressure, temperature)                            \
+        , info                                                               \
+    );                                                                       \
+}                                                                            \
+                                                                             \
+    constexpr auto                                                           \
+NAME##_pt (                                                                  \
+      auto const& pressure                                                   \
+    , auto const& temperature                                                \
+){                                                                           \
+    return NAME##_pt (                                                       \
+          pressure                                                           \
+        , temperature                                                        \
+        , initial_density (pressure, temperature)                            \
+        , info::none                                                         \
+    );                                                                       \
+}                                                                            \
+                                                                             \
+    template <info_tag_t InfoTag = info::tag::none>                          \
+    constexpr auto                                                           \
+NAME##_tp (                                                                  \
+      auto const& temperature                                                \
+    , auto const& pressure                                                   \
+    , auto const& density_initial_guess                                      \
+    , info_t <InfoTag> info = info::none                                     \
+){                                                                           \
+    return NAME##_pt (                                                       \
+          pressure                                                           \
+        , temperature                                                        \
+        , density_initial_guess                                              \
+        , info                                                               \
+    );                                                                       \
+}                                                                            \
+                                                                             \
+    template <info_tag_t InfoTag>                                            \
+    constexpr auto                                                           \
+NAME##_tp (                                                                  \
+      auto const& temperature                                                \
+    , auto const& pressure                                                   \
+    , info_t <InfoTag> info                                                  \
+){                                                                           \
+    return NAME##_pt (                                                       \
+          pressure                                                           \
+        , temperature                                                        \
+        , info                                                               \
+    );                                                                       \
+}                                                                            \
+                                                                             \
+    constexpr auto                                                           \
+NAME##_tp (                                                                  \
+      auto const& temperature                                                \
+    , auto const& pressure                                                   \
+){                                                                           \
+    return NAME##_pt (                                                       \
+          pressure                                                           \
+        , temperature                                                        \
+        , info::none                                                         \
+    );                                                                       \
+}                                                                                      
 
 ISTO_IAPWS_R6_INVERSE_GEN(massic_internal_energy)
 ISTO_IAPWS_R6_INVERSE_GEN(massic_entropy)

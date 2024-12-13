@@ -2,6 +2,7 @@
     using doctest::Approx;
 #include "test.hpp"
 #include "../include/calculisto/iapws/r6.hpp"
+#include "../include/calculisto/iapws/r6_inverse.hpp"
     using namespace calculisto::iapws;
     using namespace calculisto::iapws::r6;
 #include "../include/calculisto/iapws/detail/data_for_the_tests.hpp"
@@ -120,6 +121,25 @@ SUBCASE("main API")
 SUBCASE("mixed arguments")
 {
     CHECK(pressure_dt (1e3, 300.0l));
+}
+SUBCASE("Cp, alpha_v, kappa_T")
+{
+    for (auto iT = 0; iT < ssize (r7::detail::T); ++iT)
+    {
+            const auto
+        T = r7::detail::T[iT] + 273.15;
+        for (auto iP = 0; iP < ssize (r7::detail::P); ++iP)
+        {
+                const auto
+            P = r7::detail::P[iP] * 1e5;
+                const auto
+            D = r6_inverse::density_pt (P, T);
+                const auto
+            alpha_v = r7::detail::table_9[iT][iP] * 1e-6;
+            INFO("T= ", T, ", P= ", P, ", D= ", D, ", a_v = ", alpha_v);
+            CHECK(isobaric_cubic_expansion_coefficient_dt (D, T) == Approx { alpha_v }.scale (fabs (alpha_v )).epsilon (1e-2));
+        }
+    }
 }
 #if 0
 SUBCASE("expansion, compressibility, etc.")

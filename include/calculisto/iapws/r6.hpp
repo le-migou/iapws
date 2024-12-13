@@ -893,7 +893,7 @@ ISTO_IAPWS_R6_GENERATE_FUNCTIONS(speed_of_sound, (pow ((1 + 2. * delta * detail:
 // AN3, no tests for these
 ISTO_IAPWS_R6_GENERATE_FUNCTIONS(isothermal_stress_coefficient, (1. + ((delta * detail::phi_r_d (delta, tau) + delta * delta * detail::phi_r_dd (delta, tau)) / (1. + delta * detail::phi_r_d (delta, tau)))) * density)
 ISTO_IAPWS_R6_GENERATE_FUNCTIONS(relative_pressure_coefficient, (1. - ((delta * tau * detail::phi_r_dt (delta, tau)) / (1. + delta * detail::phi_r_d (delta, tau)))) / temperature)
-//ISTO_IAPWS_R6_GENERATE_FUNCTIONS(isobaric_cubic_expansion_coefficient, ((1. + delta * detail::phi_r_d (delta, tau) - delta * tau * detail::phi_r_dt (delta, tau)) / (1. + 2 * delta * detail::phi_r_d (delta, tau) + delta * delta * detail::phi_r_dd (delta, tau))) / temperature)
+ISTO_IAPWS_R6_GENERATE_FUNCTIONS(isobaric_cubic_expansion_coefficient, ((1. + delta * detail::phi_r_d (delta, tau) - delta * tau * detail::phi_r_dt (delta, tau)) / (1. + 2 * delta * detail::phi_r_d (delta, tau) + delta * delta * detail::phi_r_dd (delta, tau))) / temperature)
 //ISTO_IAPWS_R6_GENERATE_FUNCTIONS(isothermal_compressibility, (1. / (1. + 2. * delta * detail::phi_r_d (delta, tau) + delta * delta * detail::phi_r_dd (delta, tau))) / density / massic_gas_constant / temperature)
 #undef ISTO_IAPWS_R6_GENERATE_FUNCTIONS
 
@@ -1026,7 +1026,7 @@ ISTO_IAPWS_R6_GENERATE_FUNCTIONS(speed_of_sound, (pow ((1 + 2. * delta * detail:
 // AN3, no tests for these
 ISTO_IAPWS_R6_GENERATE_FUNCTIONS(isothermal_stress_coefficient, (1. + ((delta * detail::phi_r_d (delta, tau) + delta * delta * detail::phi_r_dd (delta, tau)) / (1. + delta * detail::phi_r_d (delta, tau)))) * density)
 ISTO_IAPWS_R6_GENERATE_FUNCTIONS(relative_pressure_coefficient, (1. - ((delta * tau * detail::phi_r_dt (delta, tau)) / (1. + delta * detail::phi_r_d (delta, tau)))) / temperature)
-//ISTO_IAPWS_R6_GENERATE_FUNCTIONS(isobaric_cubic_expansion_coefficient, ((1. + delta * detail::phi_r_d (delta, tau) - delta * tau * detail::phi_r_dt (delta, tau)) / (1. + 2 * delta * detail::phi_r_d (delta, tau) + delta * delta * detail::phi_r_dd (delta, tau))) / temperature)
+ISTO_IAPWS_R6_GENERATE_FUNCTIONS(isobaric_cubic_expansion_coefficient, ((1. + delta * detail::phi_r_d (delta, tau) - delta * tau * detail::phi_r_dt (delta, tau)) / (1. + 2 * delta * detail::phi_r_d (delta, tau) + delta * delta * detail::phi_r_dd (delta, tau))) / temperature)
 //ISTO_IAPWS_R6_GENERATE_FUNCTIONS(isothermal_compressibility, (1. / (1. + 2. * delta * detail::phi_r_d (delta, tau) + delta * delta * detail::phi_r_dd (delta, tau))) / density / massic_gas_constant / temperature)
 #undef ISTO_IAPWS_R6_GENERATE_FUNCTIONS
 

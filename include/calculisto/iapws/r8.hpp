@@ -342,6 +342,20 @@ detail
         return dAdr * (1 + A + 5 * B) + dBdr * (9 + 5 * A + 9 * B);
     }
         constexpr auto
+    half_dcdrr (
+          auto const& A
+        , auto const& B
+        , auto const& dAdr
+        , auto const& dAdrr
+        , auto const& dBdr
+    ){
+        return dAdrr * (1 + A + 5 * B) 
+            + dAdr * dAdr 
+            + 10 * dAdr * dBdr 
+            + 9 * dBdr * dBdr
+        ;
+    }
+        constexpr auto
     half_dcdtr (
           auto const& A
         , auto const& B
@@ -387,23 +401,24 @@ detail
         constexpr auto
     dddrr (
           auto const& dAdrr
-        , auto const& dBdrr
         , auto const& half_dCdr
         , auto const& half_dCdrr
         , auto const& C
         , auto const& sqrtC
     ){
-        return dAdrr + 5 * dBdrr + half_dCdrr / sqrtC 
-            - half_dCdr * half_dCdr / C / sqrtC
+        return dAdrr + half_dCdrr / sqrtC - half_dCdr * half_dCdr / C / sqrtC
         ;
     }
         constexpr auto
     dddtr (
           auto const& dAdtr
+        , auto const& half_dCdt
+        , auto const& half_dCdr
         , auto const& half_dCdtr
+        , auto const& C
         , auto const& sqrtC
     ){
-        return dAdtr + half_dCdtr / sqrtC;
+        return dAdtr + half_dCdtr / sqrtC - half_dCdt * half_dCdr / C / sqrtC;;
     }
         constexpr auto
     e (auto const& molar_density, auto const& temperature)
@@ -533,11 +548,56 @@ detail
         half_dCdt = half_dcdt (A, B, dAdt);
             const auto
         half_dCdr = half_dcdr (A, B, dAdr, dBdr);
+            const auto
+        dDdt = dddt (dAdt, half_dCdt, sqrtC);
+            const auto
+        dDdtr = dddtr (dAdtr, half_dCdt, half_dCdr, half_dCdtr, C, sqrtC);
+        return (dDdtr + dBdr * dDdt / (1 - B)) / 4 / (1 - B);
+        /*
         return (
               dBdr * (dAdt + half_dCdt / sqrtC) / (1 - B)
             + dAdtr
             + (half_dCdtr - half_dCdt * half_dCdr / C) / sqrtC
         ) / 4 / (1 - B);
+        */
+    }
+        constexpr auto
+    dedrr (auto const& molar_density, auto const& temperature)
+    {
+            const auto
+        G = g (molar_density, temperature);
+            const auto
+        A = a (molar_density, temperature, G);
+            const auto
+        B = b (molar_density);
+            const auto
+        C = c (A, B);
+            using std::sqrt;
+            const auto
+        sqrtC = sqrt (c (A, B));
+            const auto
+        D = d (A, B, sqrtC);
+            const auto
+        dGdr = dgdr (molar_density, temperature);
+            const auto
+        dAdr = dadr (molar_density, temperature, G, dGdr);
+            const auto
+        dAdrr = dadrr (molar_density, temperature, dgdr, dgdrr);
+            const auto
+        dBdr = dbdr ();
+            const auto
+        half_dCdr = half_dcdr (A, B, dAdr, dBdr);
+            const auto
+        half_dCdrr = half_dcdrr (A, B, dAdr, dAdrr, dBdr);
+            const auto
+        dDdr = dddr (dAdr, dBdr, half_dCdr, sqrtC);
+            const auto
+        dDdrr = dddrr (dAdrr, half_dCdr, half_dCdrr, C, sqrtC);
+        return (
+              dDdrr / 2 
+            + dBdr * dDdr / (1 - B)
+            - dBdr * dBdr * D / (1 - B) / (1 - B)
+        ) / 2 / (1 - B);
     }
 } // namespace detail
 
@@ -591,6 +651,65 @@ d_relative_permittivity_d_tt_dt (auto const& density, auto const& temperature)
         / isothermal_stress_coefficient_dt (density, temperature)
     ;
 }
+    namespace
+born
+{
+    constexpr auto
+z (auto const& density, auto const& temperature)
+{
+    return -1 / e (density / molar_mass_of_water, temperature);
+}
+    constexpr auto
+q (auto const& density, auto const& temperature)
+{
+        const auto
+    rho = density / molar_mass_of_water;
+        const auto
+    E = e (rho, temperature);
+        using namespace calculisto::iapws::r6;
+    return 
+          dedr (rho, temperature)
+        * molar_mass_of_water * rho * rho
+        / pressure_dt (density, temperature)
+        / isothermal_stress_coefficient_dt (density, temperature)
+        / E / E
+    ;
+}
+    constexpr auto
+y (auto const& density, auto const& temperature)
+{
+        const auto
+    rho = density / molar_mass_of_water;
+        const auto
+    E = e (rho, temperature);
+        using namespace calculisto::iapws::r6;
+    return (
+          dedt (rho, temperature)
+        - dedr (rho, temperature)
+        * molar_mass_of_water * rho * rho
+        * relative_pressure_coefficient_dt (density, temperature)
+        / isothermal_stress_coefficient_dt (density, temperature)
+    ) / E / E;
+}
+    constexpr auto
+x (auto const& density, auto const& temperature)
+{
+        const auto
+    rho = density / molar_mass_of_water;
+        const auto
+    E = e (rho, temperature);
+        const auto
+    Y = y (rho, temperature);
+        using namespace calculisto::iapws::r6;
+    return (
+          dedtt (rho, temperature)
+        - dedtr (rho, temperature)
+        * molar_mass_of_water * rho * rho
+        * relative_pressure_coefficient_dt (density, temperature)
+        / isothermal_stress_coefficient_dt (density, temperature)
+    ) / E / E - 2 * E * Y * Y;
+}
 
+} // namespace born
 } // namespace r8_09_1997
 } // namespace calculisto::iapws::r8
